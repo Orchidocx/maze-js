@@ -1,8 +1,10 @@
 const {World, Engine, Runner, Render, Bodies, Body, Events} = Matter;
+
 const width = window.innerWidth, height = window.innerHeight;
-const gridWidth = 6, gridHeight = 6;
-const unitLengthX = width/gridWidth;
-const unitLengthY = height/gridHeight;
+const gridHorizontal = 14, gridVertical = 10;
+const unitLengthX = width/gridHorizontal;
+const unitLengthY = height/gridVertical;
+
 const engine = Engine.create();
 engine.world.gravity.y = 0;
 const {world} = engine;
@@ -28,13 +30,13 @@ const walls = [
 ]
 World.add(world, walls);
 
-const grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
-const verticals = Array(gridSize).fill(null).map(() => Array(gridSize-1).fill(false));
-const horizontals = Array(gridSize-1).fill(null).map(() => Array(gridSize).fill(false));
+const grid = Array(gridVertical).fill(null).map(() => Array(gridHorizontal).fill(false));
+const verticals = Array(gridVertical).fill(null).map(() => Array(gridHorizontal-1).fill(false));
+const horizontals = Array(gridVertical-1).fill(null).map(() => Array(gridHorizontal).fill(false));
 
 // get starting position for the Player in the grid
-const startRow = Math.floor(Math.random()*gridSize);
-const startColumn = Math.floor(Math.random()*gridSize);
+const startRow = Math.floor(Math.random()*gridVertical);
+const startColumn = Math.floor(Math.random()*gridHorizontal);
 
 const step = (row, col) => {
     // if visited, then return
@@ -52,8 +54,8 @@ const step = (row, col) => {
 
     for (let neighbor of neighbors) {
         const [nextRow, nextCol, direction] = neighbor;
-        if(nextRow < 0 || nextRow >= gridSize || 
-           nextCol < 0 || nextCol >= gridSize) {
+        if(nextRow < 0 || nextRow >= gridVertical || 
+           nextCol < 0 || nextCol >= gridHorizontal) {
             continue;
         }
         if(grid[nextRow][nextCol]) {
@@ -88,21 +90,24 @@ const addWalls = (arr, orientation) => {
             if(passage) {return};
             let xPos, yPos, w, h;
             if(orientation === "horizontal") {
-                xPos = cIndx * unitLength + unitLength / 2
-                yPos = rIndx * unitLength + unitLength;
-                w = unitLength;
+                xPos = cIndx * unitLengthX + unitLengthX / 2
+                yPos = rIndx * unitLengthY + unitLengthY;
+                w = unitLengthX;
                 h = 5;
             } else if (orientation === "vertical") {
-                xPos = cIndx * unitLength + unitLength;
-                yPos = rIndx * unitLength + unitLength / 2
+                xPos = cIndx * unitLengthX + unitLengthX;
+                yPos = rIndx * unitLengthY + unitLengthY / 2
                 w = 5;
-                h = unitLength;
+                h = unitLengthY;
                 
             }
             const wall = Bodies.rectangle(xPos, yPos, w, h, 
                 { 
                     isStatic:true, 
-                    label: 'wall'
+                    label: 'wall',
+                    render: {
+                        fillStyle: '#4050A0'
+                    }
                 });
             World.add(world, wall);
         });
@@ -112,18 +117,22 @@ addWalls(horizontals, "horizontal");
 addWalls(verticals, "vertical");
 
 // Goal
-const goal = Bodies.rectangle(width - unitLength/2, height - unitLength/2, unitLength/2, unitLength/2,
+const goal = Bodies.rectangle(
+    width - unitLengthX/2, height - unitLengthY/2, unitLengthX/2, unitLengthY/2,
     {
         isStatic: true,
-        label: 'goal'
+        label: 'goal',
+        render: {
+            fillStyle: '#10AA30'
+        }
     });
 World.add(world, goal);
 
 // Player
 const player = Bodies.circle(
-    unitLength/2,
-    unitLength/2,
-    unitLength/4,
+    unitLengthX/2,
+    unitLengthY/2,
+    Math.min(unitLengthX, unitLengthY)/4,
     {
         restitution: .25,
         label: 'player'
@@ -152,8 +161,7 @@ document.addEventListener('keydown', event => {
             break;
         case 32:
             console.log("space jump!");
-        default:
-            console.log(event.keyCode);
+            break;
     }
 });
 
@@ -163,6 +171,7 @@ Events.on(engine, 'collisionStart', event => {
         const labels = ['player', 'goal'];
         if(labels.includes(collision.bodyA.label) &&
            labels.includes(collision.bodyB.label)) {
+               document.querySelector('.winner').classList.remove('hidden');
                world.gravity.y = 1;
                world.bodies.forEach(body => {
                    if(body.label === 'wall') {
@@ -171,4 +180,4 @@ Events.on(engine, 'collisionStart', event => {
                })
            }
     })
-})
+});
