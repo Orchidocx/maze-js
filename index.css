@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 body {
     margin: 0;
     overflow: hidden;
@@ -10,11 +11,12 @@ body {
 .winner {
     color: white;
     font-size: 36px;
+    font-family: Raleway, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
     z-index: 1;
-/*     height: 100vh; */
-/*     width: 100vw; */
+    height: 100vh;
+    width: 100vw;
 }

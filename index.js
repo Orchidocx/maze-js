@@ -172,7 +172,7 @@ Events.on(engine, 'collisionStart', event => {
         if(labels.includes(collision.bodyA.label) &&
            labels.includes(collision.bodyB.label)) {
                document.querySelector('.winner').classList.remove('hidden');
-               world.gravity.y = 1;
+               world.gravity.y = 0.15;
                world.bodies.forEach(body => {
                    if(body.label === 'wall') {
                        Body.setStatic(body, false);
